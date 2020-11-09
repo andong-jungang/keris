@@ -10,8 +10,10 @@ from PIL import Image
 
 def get_transform():
     """Module for image pre-processing definition.
+    이미지 pre-processing 을 위한 모듈 정의
 
     You can customize this module.
+    당신은 이 모듈을 커스터마이징 할 수 있습니다.
     """
     normalize = transforms.Normalize(
         mean=[x / 255.0 for x in [125.3, 123.0, 113.9]],
@@ -37,9 +39,12 @@ def retrieve_meta(meta_root):
 
 class CustomDataset(data.Dataset):
     """Dataset class.
+    데이터셋 클레스
 
     This class is used for internal NSML inference system.
     You can change this module for improving image load efficiency.
+    이 큻레스는 NSML 내부 추론 시스템에서 사용됩니다.
+    당신은 이 모듈을 이미지 로드 효율성 향상을 위해 변경할 수 있습니다
     """
 
     def __init__(self, root, transform, split):
@@ -66,6 +71,7 @@ class CustomDataset(data.Dataset):
 
 def data_loader(root, split='test', batch_size=64):
     """Test data loading module.
+    테스트 데이터 로딩 모듈
 
     Args:
         root: string. dataset path.
