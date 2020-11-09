@@ -85,8 +85,8 @@ if __name__ == '__main__':
 
     # User options
     args.add_argument('--output', type=int, default=1)
-    args.add_argument('--max_epoch', type=int, default=10)
-    args.add_argument('--batch', type=int, default=2000)
+    args.add_argument('--max_epoch', type=int, default=20)
+    args.add_argument('--batch', type=int, default=512)
     args.add_argument('--strmaxlen', type=int, default=200)
     args.add_argument('--embedding', type=int, default=8)
 
