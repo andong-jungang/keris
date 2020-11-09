@@ -22,8 +22,9 @@ else:
 
 
 class ClsResNet(models.ResNet):
-    """Model definition.
-
+    """모델 정의.
+    
+    당신은 어떠한 모듈도 대회에서 사용하실 수 있습니다. 맘편하게 먹고 이 클레스를 수정하세요.
     You can use any model for the challenge. Feel free to modify this class.
     """
 
@@ -85,8 +86,10 @@ def _infer(model, root_path, loader=None):
 
 
 def bind_nsml(model):
-    """NSML binding function.
-
+    """NSML 바인딩 함수.
+    
+    이 함수는 NSML 내부 프로세스에서 사용됩니다.
+    프레임워크에 따라 이 모듈을 수정하십시오.
     This function is used for internal process in NSML.
     Please modify this module according to your framework.
     """
@@ -111,8 +114,12 @@ def bind_nsml(model):
 
 
 def load_weight(model):
-    """Weight loading function.
-
+    """Weight loading 함수.
+    
+    웨이트 파일을 당신의 루트 디렉터리(/)에 두셔야 합니다. 웨이트 파일의
+    파일명은 'checkpoint.pth' 이어야 합니다. 만약 이것(웨이트 파일)이
+    'checkpoint.pth' 라는 파일명을 가지지 않았거나, 루트 디렉터리(/)에 없을 경우,
+    웨이트들은 무작위로 초기화 될 것입니다.
     You should put your weight file on root directory. The name of weight file
     should be 'checkpoint.pth'. If there is no 'checkpoint.pth' on root directory,
     the weights will be randomly initialized.
@@ -131,8 +138,9 @@ def load_weight(model):
 
 
 def local_eval(model, loader, gt_path):
-    """Local debugging function.
-
+    """로컬 디버깅 함수.
+    
+    아래의 함수를 디버깅을 위해 사용할 수 있습니다. 더미 gt 파일이 필요할 수도 있어요.
     You can use this function for debugging. You may need dummy gt file.
 
     Args:
@@ -156,11 +164,13 @@ if __name__ == '__main__':
     args.add_argument("--num_classes", type=int, default=8)
 
     # Arguments for train mode
+    # 학습 모드에 관한 매개변수
     args.add_argument("--num_epochs", type=int, default=50)
     args.add_argument("--base_lr", type=float, default=0.001)
     args.add_argument("--step_size", type=int, default=20)
 
     # These three arguments are reserved for nsml. Do not change.
+    # 이 3가지 매개변수들은 nsml을 위해 존재합니다. 바꾸지 마세요.
     args.add_argument("--mode", type=str, default="train")
     args.add_argument("--iteration", type=str, default='0')
     args.add_argument("--pause", type=int, default=0)
@@ -183,6 +193,7 @@ if __name__ == '__main__':
 
     if IS_ON_NSML:
         # This NSML block is mandatory. Do not change.
+        # 이 NSML 블럭은 의무적입니다. 바꾸지 마세요.
         bind_nsml(model)
         nsml.save('checkpoint')
         if config.pause:
@@ -191,6 +202,8 @@ if __name__ == '__main__':
     if config.mode == 'train':
         # Local debugging block. This module is not mandatory.
         # But this would be quite useful for troubleshooting.
+        # 로컬 디버깅 블록. 이 모듈은 의무적인게 아닙니다.
+        # 허나 이는 버그해결에 정말 유용할겁니다.
         train_loader = data_loader(root=DATASET_PATH, split='train')
         val_loader = data_loader(root=DATASET_PATH, split='val')
         num_batches = len(train_loader)
