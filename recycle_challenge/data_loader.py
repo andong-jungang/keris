@@ -20,6 +20,7 @@ def feed_infer(output_file, infer_func):
         infer_func: function.
 
     pred.txt (for evaluation.py) should follow the following structure:
+    pred.txt (evaluation.py 파일을 위한.) 는 아래 구조처럼 나와야 한다:
         img_1,1,0,1,0,1,0,0,0
         img_2,0,1,0,0,1,0,0,0
         img_3,0,0,1,0,0,0,1,0
@@ -28,8 +29,11 @@ def feed_infer(output_file, infer_func):
         ...
 
     """
+    
+    # NSML 환경일때
     if IS_ON_NSML:
         root_path = os.path.join(DATASET_PATH, 'test')
+    # 로컬 환경일때
     else:
         root_path = '/home/dataset/iitp_trash_proxy/test'
 
@@ -49,8 +53,10 @@ def test_data_loader(root_path):
 
 def check_file_structure(output_file):
     """File structure check function.
+    파일 구조 검사 함수
 
     If the structure of your result file is wrong, ValueError will occur.
+    만약 당신의 결과파일의 구조가 틀렸을 경우, 야생의 ValueError 가 나타났다! 할 것이다.
     """
     with open(output_file, encoding='utf-8-sig') as f:
         for idx, line in enumerate(f.readlines()):
