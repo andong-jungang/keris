@@ -1,12 +1,12 @@
 # KERIS_TRASH
-KERIS trash recognition challenge
+KERIS trash recognition challenge<br>
 KERIS 쓰레기 인식 대회
 
 Dataset(데이터셋): `recycle_challenge`
 * num_test_images: 3000
 * num_test_classes: 8
 
-Pushing dataset (at the root of the folder you want to upload):
+Pushing dataset (at the root of the folder you want to upload):<br>
 데이터셋 푸싱(업로드같은거라 생각하면 됨)(당신이 업로드 하기를 원하는 폴더의 루트에서):
 
 How to run(실행방법):
