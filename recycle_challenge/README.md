@@ -12,8 +12,7 @@ Pushing dataset (at the root of the folder you want to upload):<br>
 How to run(실행방법):
 
 ```bash
-nsml run -d recycle_challenge -g 1 --memory 12G --shm-size 2G --cpus 8 -e main.py -a \
-         "--mode train --num_epochs 5 --step_size 2"
+nsml run -d recycle_challenge -g 1 --memory 12G --shm-size 2G --cpus 8 -e main.py -a --mode train --num_epochs 5 --step_size 2
 ```
 
 How to list checkpoints saved(리스트 체크포인트 저장 방법):
