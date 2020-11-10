@@ -237,6 +237,6 @@ if __name__ == '__main__':
             gt_label = os.path.join(DATASET_PATH, 'train/train_data/val_label')
             acc = local_eval(model, val_loader, gt_label)
             print(f'[{epoch + 1}/{config.num_epochs}] '
-                  f'Validation performance: {acc:.3f}')
+                  f'Validation performance: {acc:.3f} Total loss : {total_loss} Train loss : {loss_average}')
             nsml.report(step=epoch, val_acc=acc)
             nsml.report(step=epoch, train_loss=loss_average)
