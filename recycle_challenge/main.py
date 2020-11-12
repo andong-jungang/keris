@@ -5,12 +5,15 @@ import argparse
 import nsml
 import torch
 import torch.nn as nn
+
 import torchvision.models as models
 
 from data_loader import feed_infer
 from data_local_loader import data_loader
-from torch.optim import Adam
+from torch.optim import AdamW
+from adamp import AdamP
 from torch.optim.lr_scheduler import StepLR
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 from nsml import DATASET_PATH, IS_ON_NSML
 from evaluation import evaluation_metrics
@@ -158,14 +161,13 @@ def local_eval(model, loader, gt_path):
     metric_result = evaluation_metrics(pred_path, gt_path)
     return metric_result
 
-
 if __name__ == '__main__':
     args = argparse.ArgumentParser()
     args.add_argument("--num_classes", type=int, default=8)
 
     # Arguments for train mode
     # 학습 모드에 관한 매개변수
-    args.add_argument("--num_epochs", type=int, default=50)
+    args.add_argument("--num_epochs", type=int, default=200)
     args.add_argument("--base_lr", type=float, default=0.001)
     args.add_argument("--step_size", type=int, default=20)
 
@@ -178,7 +180,7 @@ if __name__ == '__main__':
     config = args.parse_args()
 
     model = ClsResNet(block=models.resnet.BasicBlock,
-                      layers=[2, 2, 2, 2],
+                      layers=[3, 4, 6, 3],
                       num_classes=config.num_classes)
     load_weight(model)
     criterion = nn.BCEWithLogitsLoss()
@@ -189,7 +191,8 @@ if __name__ == '__main__':
     optimizer = Adam(
         [param for param in model.parameters() if param.requires_grad],
         lr=config.base_lr, weight_decay=1e-4)
-    scheduler = StepLR(optimizer, step_size=20, gamma=0.1)
+    # scheduler = StepLR(optimizer, step_size=20, gamma=0.1)
+    scheduler = ReduceLROnPlateau(optimizer)
 
     if IS_ON_NSML:
         # This NSML block is mandatory. Do not change.
@@ -209,13 +212,15 @@ if __name__ == '__main__':
         num_batches = len(train_loader)
 
         for epoch in range(config.num_epochs):
-            scheduler.step()
+
             model.train()
 
             total_loss = 0.0
             num_images = 0
 
             for iter_, (image, image_id, label) in enumerate(train_loader):
+                dropout = nn.Dropout(p=0.2)
+                
                 image = image.cuda()
                 label = label.cuda()
 
@@ -227,9 +232,11 @@ if __name__ == '__main__':
 
                 optimizer.zero_grad()
                 loss.backward()
+
                 optimizer.step()
 
             loss_average = total_loss / float(num_images)
+            scheduler.step(metrics=loss_average, epoch=epoch)
 
             if IS_ON_NSML:
                 nsml.save(str(epoch + 1))
@@ -237,6 +244,6 @@ if __name__ == '__main__':
             gt_label = os.path.join(DATASET_PATH, 'train/train_data/val_label')
             acc = local_eval(model, val_loader, gt_label)
             print(f'[{epoch + 1}/{config.num_epochs}] '
-                  f'Validation performance: {acc:.3f} Total loss : {total_loss} Train loss : {loss_average}')
+                  f'Validation performance: {acc:.3f} | Total loss : {total_loss} | Train loss : {loss_average}')
             nsml.report(step=epoch, val_acc=acc)
             nsml.report(step=epoch, train_loss=loss_average)
