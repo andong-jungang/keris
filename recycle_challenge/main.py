@@ -11,7 +11,7 @@ import torchvision.models as models
 from data_loader import feed_infer
 from data_local_loader import data_loader
 from torch.optim import AdamW
-from adamp import AdamP
+#from adamp import AdamP
 from torch.optim.lr_scheduler import StepLR
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
@@ -188,7 +188,7 @@ if __name__ == '__main__':
     model = model.cuda()
     criterion = criterion.cuda()
 
-    optimizer = Adam(
+    optimizer = AdamW(
         [param for param in model.parameters() if param.requires_grad],
         lr=config.base_lr, weight_decay=1e-4)
     # scheduler = StepLR(optimizer, step_size=20, gamma=0.1)
