@@ -4,7 +4,12 @@ import numpy as np
 import torch
 
 from torch.utils import data
-from torchvision import transforms
+#from torchvision import transforms
+# import albumentations
+import albumentations as A
+from albumentations.pytorch import transforms
+import cv2
+
 from PIL import Image
 
 
@@ -15,15 +20,36 @@ def get_transform():
     You can customize this module.
     당신은 이 모듈을 커스터마이징 할 수 있습니다.
     """
+    '''
     normalize = transforms.Normalize(
         mean=[x / 255.0 for x in [125.3, 123.0, 113.9]],
         std=[x / 255.0 for x in [63.0, 62.1, 66.7]])
     transform = [
-        transforms.Resize((224, 224)),
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomRotation(45),
+        transforms.Resize((256*2, 256*2)),
+        transforms.RandomCrop((224, 224)),
         transforms.ToTensor(),
         normalize
     ]
     return transforms.Compose(transform)
+    '''
+    albumentation = [
+        A.Resize(256*2, 256*2),
+        A.RandomCrop(224, 224),
+        A.OneOf([
+                          A.HorizontalFlip(p=1),
+                          A.RandomRotate90(p=1),
+                          A.VerticalFlip(p=1)], p=1),
+        A.OneOf([
+                          A.MotionBlur(p=1),
+                          A.OpticalDistortion(p=1),
+                          A.GaussNoise(p=1)], p=1),
+        #A.pytorch.transforms.ToTensorV2()
+        transforms.ToTensor(num_classes=1, sigmoid=True, normalize=None)
+    ]
+    return A.Compose(albumentation)
+    
 
 
 def retrieve_meta(meta_root):
@@ -43,7 +69,7 @@ class CustomDataset(data.Dataset):
 
     This class is used for internal NSML inference system.
     You can change this module for improving image load efficiency.
-    이 큻레스는 NSML 내부 추론 시스템에서 사용됩니다.
+    이 클레스는 NSML 내부 추론 시스템에서 사용됩니다.
     당신은 이 모듈을 이미지 로드 효율성 향상을 위해 변경할 수 있습니다
     """
 
@@ -60,9 +86,13 @@ class CustomDataset(data.Dataset):
 
     def __getitem__(self, idx):
         image_id = self.image_ids[idx]
-        image = Image.open(os.path.join(self.data_root, image_id))
-        image = image.convert('RGB')
-        image = self.transform(image)
+        #image = Image.open(os.path.join(self.data_root, image_id))
+        #image = image.convert('RGB')
+        image = cv2.imread(os.path.join(self.data_root, image_id))
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        augmented = self.transform(image=image) 
+        image = augmented['image']
+        #image = self.transform(image)
         return image, image_id, self.targets[idx]
 
     def __len__(self):
